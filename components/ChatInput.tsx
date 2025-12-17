@@ -17,12 +17,13 @@ interface ChatInputProps {
   hasAttachments: boolean;
   onToggleMic?: () => void;
   isListening?: boolean;
+  onImageGen?: () => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
   value, onChange, onSend, onStop, isLoading, 
   onScreenshot, onAttach, useSearch, onToggleSearch, onOpenTemplates, hasAttachments,
-  onToggleMic, isListening
+  onToggleMic, isListening, onImageGen
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
@@ -67,6 +68,21 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             >
                 <Icons.Globe size={18} aria-hidden="true"/>
             </button>
+            
+            {/* Botón de Generar Imagen */}
+            {onImageGen && (
+                <button 
+                    className="tool-btn" 
+                    onClick={onImageGen} 
+                    disabled={isLoading} 
+                    title={t('input.tool.image')}
+                    type="button"
+                    aria-label={t('input.tool.image')}
+                >
+                    <Icons.Palette size={18} aria-hidden="true"/>
+                </button>
+            )}
+
             <button 
                 className="tool-btn" 
                 onClick={onOpenTemplates} 

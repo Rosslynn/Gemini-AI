@@ -429,6 +429,11 @@ export default function App() {
       } finally { setIsLoading(false); abortControllerRef.current = null; }
   };
 
+  const handleImageGen = () => {
+      setInputValue(t('prompts.image_gen_prefix'));
+      // Enfocar input se maneja en el componente, pero al cambiar el state, el usuario solo tiene que escribir.
+  };
+
   const handleTemplateSelect = (content: string) => {
       setInputValue(content);
       setShowTemplates(false);
@@ -567,6 +572,7 @@ export default function App() {
                     hasAttachments={attachments.length > 0}
                     onToggleMic={toggleMic}
                     isListening={isListening}
+                    onImageGen={handleImageGen}
                  />
                  <input type="file" ref={fileInputRef} onChange={(e) => e.target.files?.length && processFiles(Array.from(e.target.files))} style={{display: 'none'}} multiple/>
               </footer>

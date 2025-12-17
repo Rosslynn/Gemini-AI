@@ -25,6 +25,7 @@ export const translations = {
     'input.tool.attach': 'Adjuntar Archivo',
     'input.tool.search': 'Búsqueda Web',
     'input.tool.templates': 'Plantillas',
+    'input.tool.image': 'Generar Imagen',
     'input.tool.mic_start': 'Dictar por voz',
     'input.tool.mic_stop': 'Detener escucha',
     'drag.drop_files': 'Soltar archivos',
@@ -93,6 +94,7 @@ export const translations = {
     'prompts.refactor': 'Refactoriza este código aplicando principios Clean Code y SOLID. Explica los cambios.',
     'prompts.fix': 'Analiza este código en busca de errores o bugs potenciales y propón una solución corregida.',
     'prompts.tests': 'Genera Unit Tests robustos (usando Vitest/Jest) para este código, cubriendo casos borde.',
+    'prompts.image_gen_prefix': 'Genera una imagen de: ',
 
     // TEMPLATES
     'templates.title.list': 'Plantillas',
@@ -189,6 +191,7 @@ export const translations = {
     'input.tool.attach': 'Attach File',
     'input.tool.search': 'Web Search',
     'input.tool.templates': 'Templates',
+    'input.tool.image': 'Generate Image',
     'input.tool.mic_start': 'Voice Dictation',
     'input.tool.mic_stop': 'Stop Listening',
     'drag.drop_files': 'Drop files here',
@@ -257,6 +260,7 @@ export const translations = {
     'prompts.refactor': 'Refactor this code applying Clean Code and SOLID principles. Explain the changes.',
     'prompts.fix': 'Analyze this code for potential errors or bugs and propose a corrected solution.',
     'prompts.tests': 'Generate robust Unit Tests (using Vitest/Jest) for this code, covering edge cases.',
+    'prompts.image_gen_prefix': 'Generate an image of: ',
 
     // TEMPLATES
     'templates.title.list': 'Templates',

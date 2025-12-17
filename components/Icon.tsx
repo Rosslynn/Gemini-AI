@@ -32,7 +32,8 @@ import {
   Keyboard,
   HelpCircle,
   Command,
-  MoreVertical
+  MoreVertical,
+  Palette
 } from 'lucide-react';
 
 export const Icons = {
@@ -67,5 +68,6 @@ export const Icons = {
   Keyboard,
   Help: HelpCircle,
   Command,
-  More: MoreVertical
+  More: MoreVertical,
+  Palette
 };
