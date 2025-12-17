@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Logo Sidecar</title>
+    <style>
+        body { 
+            background: #09090b; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            margin: 0;
+        }
+        .container {
+            background: #18181b;
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid #27272a;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        canvas { 
+            border-radius: 24px;
+            margin: 20px 0; 
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.2); 
+            cursor: pointer;
+        }
+        h2 { margin-top: 0; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; color: transparent; }
+        p { color: #a1a1aa; font-size: 14px; margin-bottom: 20px; }
+        button { 
+            padding: 12px 24px; 
+            background: linear-gradient(135deg, #2563eb, #7c3aed); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 600; 
+            transition: transform 0.1s;
+        }
+        button:hover { transform: scale(1.05); }
+        button:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Gemini Sidecar Icon</h2>
+        <canvas id="logoCanvas" width="128" height="128"></canvas>
+        <p>Haz clic en el botón para descargar <strong>icon.png</strong><br>Luego muévelo a la raíz de tu proyecto.</p>
+        <button onclick="downloadIcon()">Descargar Icono</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('logoCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function draw() {
+            // Fondo oscuro suave
+            const bgGrad = ctx.createLinearGradient(0, 0, 128, 128);
+            bgGrad.addColorStop(0, '#1e1e24');
+            bgGrad.addColorStop(1, '#000000');
+            
+            ctx.fillStyle = bgGrad;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 128, 128, 28);
+            ctx.fill();
+
+            // Resplandor Azul/Violeta (Estilo Gemini)
+            const glow = ctx.createRadialGradient(64, 64, 10, 64, 64, 60);
+            glow.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+            glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 128, 128, 28);
+            ctx.fill();
+
+            // Hexágono (Contenedor de código)
+            ctx.save();
+            ctx.translate(64, 64);
+            
+            ctx.beginPath();
+            const size = 42;
+            for (let i = 0; i < 6; i++) {
+                ctx.lineTo(size * Math.cos(i * Math.PI / 3), size * Math.sin(i * Math.PI / 3));
+            }
+            ctx.closePath();
+            
+            ctx.lineWidth = 4;
+            // Gradiente del borde
+            const strokeGrad = ctx.createLinearGradient(-40, -40, 40, 40);
+            strokeGrad.addColorStop(0, '#60a5fa'); // Blue
+            strokeGrad.addColorStop(1, '#c084fc'); // Purple
+            ctx.strokeStyle = strokeGrad;
+            ctx.stroke();
+
+            // Relleno sutil del hexágono
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.fill();
+
+            // Símbolo de "IA" / "Chispa" en el centro
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath();
+            // Estrella de 4 puntas estilizada
+            ctx.moveTo(0, -20);
+            ctx.quadraticCurveTo(2, -2, 20, 0);
+            ctx.quadraticCurveTo(2, 2, 0, 20);
+            ctx.quadraticCurveTo(-2, 2, -20, 0);
+            ctx.quadraticCurveTo(-2, -2, 0, -20);
+            ctx.fill();
+
+            // Pequeña chispa secundaria
+            ctx.beginPath();
+            ctx.globalAlpha = 0.7;
+            ctx.moveTo(12, -12);
+            ctx.quadraticCurveTo(13, -5, 20, -4);
+            ctx.quadraticCurveTo(13, -3, 12, 4);
+            ctx.quadraticCurveTo(11, -3, 4, -4);
+            ctx.quadraticCurveTo(11, -5, 12, -12);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        draw();
+
+        function downloadIcon() {
+            const link = document.createElement('a');
+            link.download = 'icon.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "name": "Gemini Code Sidecar",
+  "description": "Tu copiloto de programación. Un panel de contexto persistente para evitar copiar y pegar constantemente mientras trabajas en editores legacy.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

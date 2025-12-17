@@ -1,0 +1,36 @@
+
+{
+  "name": "gemini-code-sidecar",
+  "version": "1.0.0",
+  "description": "Tu copiloto de programación seguro.",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "npm run test && tsc && vite build && npm run copy-assets",
+    "copy-assets": "cp manifest.json styles.css content.js importmap.json icon.png dist/",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "@google/genai": "^1.33.0",
+    "lucide-react": "^0.561.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "react-syntax-highlighter": "^16.1.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.260",
+    "@types/node": "^20.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vitest": "^2.1.8",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "jsdom": "^23.0.0"
+  }
+}
