@@ -1,6 +1,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+declare const chrome: any;
+
 interface SpeechRecognitionHook {
   isListening: boolean;
   transcript: string;
@@ -24,34 +26,20 @@ export const useSpeechRecognition = (): SpeechRecognitionHook => {
     if (SpeechRecognition) {
       setHasSupport(true);
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true; // Seguir escuchando aunque haya pausas
-      recognitionRef.current.interimResults = true; // Mostrar resultados mientras habla
-      recognitionRef.current.lang = 'es-ES'; // Default a español
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'es-ES';
 
       recognitionRef.current.onresult = (event: any) => {
-        let currentInterim = '';
         let currentFinal = '';
-
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             currentFinal += event.results[i][0].transcript;
-          } else {
-            currentInterim += event.results[i][0].transcript;
           }
         }
-        
-        // Actualizamos el transcript. 
-        // Estrategia: Solo guardamos lo final acumulado en el estado `transcript` cuando ocurre.
-        // Pero para dar feedback "vivo", concatenamos interim al final si existe.
-        // Nota: React state updates pueden ser asíncronos, aquí simplificamos añadiendo el texto final.
         if (currentFinal) {
-            setTranscript(prev => {
-                // Evitar duplicar si el evento se dispara múltiple veces con el mismo final (raro pero posible)
-                return prev ? `${prev} ${currentFinal}` : currentFinal;
-            });
+            setTranscript(prev => prev ? `${prev} ${currentFinal}` : currentFinal);
         }
-        
-        // TODO: Manejar interim para feedback visual inmediato si se desea en el futuro.
       };
 
       recognitionRef.current.onend = () => {
@@ -59,50 +47,45 @@ export const useSpeechRecognition = (): SpeechRecognitionHook => {
       };
 
       recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error', event.error);
-        if (event.error === 'not-allowed') {
-            setError('Permiso de micrófono denegado. Verifica la configuración.');
-        } else if (event.error === 'no-speech') {
-            // Ignorar silencio
-        } else if (event.error === 'aborted') {
-            setIsListening(false);
-        } else {
-            setError('Error en reconocimiento de voz: ' + event.error);
-            setIsListening(false);
+        if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+            setError('Permiso denegado. Haz clic en el candado de la barra de direcciones o abre la extensión en una pestaña completa.');
+        } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
+            setError('Error de voz: ' + event.error);
         }
+        setIsListening(false);
       };
     }
   }, []);
 
   const startListening = useCallback(async () => {
     setError(null);
-    
     if (!recognitionRef.current) return;
     if (isListening) return;
 
     try {
-        // 1. CRUCIAL: Solicitar permiso explícitamente vía getUserMedia.
-        // Esto fuerza al navegador a mostrar el popup de permisos si no se ha concedido aún.
-        // SpeechRecognition por sí solo a veces falla silenciosamente en contextos como SidePanel/Iframes.
+        // En extensiones (SidePanel), a veces el prompt no salta automáticamente con SpeechRecognition.
+        // Forzamos getUserMedia para disparar la burbuja de permisos del navegador.
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         
-        // Inmediatamente detenemos los tracks, ya que SpeechRecognition maneja su propio stream.
-        // Solo queríamos el permiso.
+        // Si llegamos aquí, tenemos permiso. Cerramos el stream (SpeechRecog usa el suyo propio).
         stream.getTracks().forEach(track => track.stop());
 
-        // 2. Iniciar reconocimiento
         recognitionRef.current.start();
         setIsListening(true);
     } catch (err: any) {
-        console.error('Error requesting microphone permission:', err);
+        console.error('Mic Error:', err);
+        setIsListening(false);
+        
         if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-             setError('Permiso de micrófono denegado. Por favor permítelo en el icono de la barra de dirección.');
-        } else if (err.name === 'NotFoundError') {
-             setError('No se detectó ningún micrófono.');
+             // Si estamos en una extensión y falla, sugerimos abrir en pestaña nueva para configurar
+             if (typeof chrome !== 'undefined' && chrome.tabs && confirm("El acceso al micrófono está bloqueado en el panel lateral.\n\n¿Quieres abrir la configuración en una nueva pestaña para permitirlo?")) {
+                 chrome.tabs.create({ url: 'chrome://settings/content/microphone' });
+             } else {
+                 setError('Permiso denegado. Revisa el icono del candado en la barra superior.');
+             }
         } else {
              setError('No se pudo acceder al micrófono: ' + err.message);
         }
-        setIsListening(false);
     }
   }, [isListening]);
 

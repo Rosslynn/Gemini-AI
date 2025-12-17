@@ -47,6 +47,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Default to SMART (Gemini 3 Pro) because users want the best by default
   const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.SMART);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [useSearch, setUseSearch] = useState(false);
@@ -301,9 +302,29 @@ export default function App() {
             apiHistory,
             selectedModel,
             useSearch,
-            (chunk, grounding) => {
+            (chunk, grounding, generatedImages) => {
                 if (chunk) accumulatedText += chunk;
-                setMessages(prev => prev.map(m => m.id === tempId ? { ...m, content: accumulatedText, isThinking: true, groundingMetadata: grounding } : m));
+                
+                setMessages(prev => prev.map(m => {
+                    if (m.id === tempId) {
+                        // Merge new images if any
+                        const currentAttachments = m.attachments || [];
+                        const newAttachments = generatedImages || [];
+                        // Simple merge preventing basic duplicates by ID if needed, 
+                        // but usually stream sends distinct parts. 
+                        // We assume generatedImages contains only *new* images from this chunk.
+                        const merged = [...currentAttachments, ...newAttachments];
+
+                        return { 
+                            ...m, 
+                            content: accumulatedText, 
+                            isThinking: true, 
+                            groundingMetadata: grounding,
+                            attachments: merged.length > 0 ? merged : undefined 
+                        };
+                    }
+                    return m;
+                }));
             },
             abortControllerRef.current.signal
         );

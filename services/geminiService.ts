@@ -16,7 +16,7 @@ export const streamGeminiResponse = async (
   history: { role: string; parts: Part[] }[],
   model: ModelType,
   useSearch: boolean,
-  onChunk: (text: string, grounding?: GroundingMetadata) => void,
+  onChunk: (text: string, grounding?: GroundingMetadata, generatedImages?: Attachment[]) => void,
   signal?: AbortSignal
 ): Promise<void> => {
   
@@ -39,18 +39,35 @@ export const streamGeminiResponse = async (
   if (finalPrompt.trim()) currentParts.push({ text: finalPrompt });
 
   const tools: any[] = [];
+  // Gemini 3 Pro Image soporta Google Search
   if (useSearch && model === ModelType.SMART) {
       tools.push({ googleSearch: {} });
+  }
+
+  // Configuración específica del modelo
+  const config: any = {
+      systemInstruction: systemInstruction,
+      tools: tools.length > 0 ? tools : undefined,
+  };
+
+  // Ajustes específicos por modelo
+  if (model === ModelType.SMART) {
+      // Gemini 3 Pro Image Preview:
+      // - NO soporta thinkingConfig (eso es para modelos de solo texto/razonamiento 2.5/3.0-preview)
+      // - Soporta imageConfig para alta calidad
+      config.imageConfig = {
+          imageSize: "2K", // Alta resolución para uso personal "Pro"
+          aspectRatio: "1:1" 
+      };
+  } else {
+      // Gemini 2.5 Flash Image no necesita configs especiales por ahora, 
+      // y no soporta thinkingConfig ni imageConfig avanzado.
   }
 
   try {
     const chat = ai.chats.create({
       model: model,
-      config: {
-        systemInstruction: systemInstruction, // Usar instrucción dinámica
-        tools: tools,
-        thinkingConfig: model === ModelType.SMART ? { thinkingBudget: 1024 } : undefined,
-      },
+      config: config,
       history: history, 
     });
 
@@ -61,8 +78,27 @@ export const streamGeminiResponse = async (
     for await (const chunk of resultStream) {
         if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
         const c = chunk as GenerateContentResponse;
-        if (c.text) onChunk(c.text, undefined);
-        if (c.candidates?.[0]?.groundingMetadata) onChunk("", c.candidates[0].groundingMetadata as GroundingMetadata);
+        
+        // Extract text
+        const text = c.text || "";
+
+        // Extract images (inlineData)
+        const newImages: Attachment[] = [];
+        c.candidates?.[0]?.content?.parts?.forEach(part => {
+             if (part.inlineData) {
+                 newImages.push({
+                     id: `gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                     mimeType: part.inlineData.mimeType,
+                     data: part.inlineData.data,
+                     previewUrl: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`,
+                     name: `gemini-3-pro-${Date.now()}.png`
+                 });
+             }
+        });
+
+        if (text || newImages.length > 0 || c.candidates?.[0]?.groundingMetadata) {
+            onChunk(text, c.candidates?.[0]?.groundingMetadata as GroundingMetadata, newImages);
+        }
     }
 
   } catch (error) {

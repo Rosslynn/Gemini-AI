@@ -90,7 +90,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = React.memo(({ message }) 
       {!isUser && <div className="avatar model" aria-hidden="true"><Icons.Cpu size={16} /></div>}
       
       <div className={`message-bubble ${isUser ? 'user-content' : 'model-content'}`}>
-        {renderAttachments(message.attachments)}
+        {/* User attachments at top, Model attachments at bottom usually looks better for generation */}
+        {isUser && renderAttachments(message.attachments)}
         
         {/* MARKDOWN RENDERING */}
         <div className="markdown-body">
@@ -146,6 +147,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = React.memo(({ message }) 
                 {message.content}
             </ReactMarkdown>
         </div>
+
+        {!isUser && renderAttachments(message.attachments)}
 
         {message.isThinking && (
            <div className="thinking-indicator" role="status" aria-label={t('chat.thinking')}>

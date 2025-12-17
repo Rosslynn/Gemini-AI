@@ -31,8 +31,10 @@ export interface Message {
 }
 
 export enum ModelType {
-  FAST = 'gemini-2.5-flash',
-  SMART = 'gemini-3-pro-preview',
+  // FAST: Rápido y eficiente para tareas simples
+  FAST = 'gemini-2.5-flash-image',
+  // SMART: EL MÁXIMO PODER (Gemini 3 Pro Image) - Soporta todo: Lógica compleja, edición de imagen HD, búsqueda.
+  SMART = 'gemini-3-pro-image-preview',
 }
 
 export interface ChatSessionConfig {
