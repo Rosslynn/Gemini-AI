@@ -1,6 +1,6 @@
 {
   "name": "Gemini Code Sidecar",
-  "description": "Tu copiloto de programación. Un panel de contexto persistente para evitar copiar y pegar constantemente mientras trabajas en editores legacy.",
+  "description": "Your AI coding copilot. A persistent context panel to avoid constant copy-pasting while working in legacy editors.",
   "requestFramePermissions": [
     "microphone"
   ]

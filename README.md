@@ -1,95 +1,70 @@
-
 # 🤖 Gemini Code Sidecar
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![React](https://img.shields.io/badge/react-19.0-blue)
-![TypeScript](https://img.shields.io/badge/typescript-5.0-blue)
-![Status](https://img.shields.io/badge/status-stable-green)
+![Privacy](https://img.shields.io/badge/Privacy-Local_Storage-green)
+![Status](https://img.shields.io/badge/Status-Production_Ready-success)
 
-**Gemini Code Sidecar** es una extensión de navegador diseñada para desarrolladores que necesitan un copiloto de IA potente, integrado y consciente del contexto, sin depender de editores específicos como VS Code. Funciona como un panel lateral persistente que puede "ver" y analizar el código en tu navegador.
+**Gemini Code Sidecar** is an advanced AI browser extension designed for developers who need a persistent, context-aware coding assistant without being tied to a specific IDE. It acts as a side panel that can "see", read, and refactor code from any webpage (GitHub, GitLab, Online IDEs, Legacy CMS).
 
----
+## ✨ Key Features
 
-## ✨ Características Principales
-
-*   **🧠 IA Avanzada**: Integra Google Gemini 2.5 Flash y 3.0 Pro.
-*   **👀 Contexto Visual**: Capaz de tomar capturas de pantalla y analizar interfaces.
-*   **🔌 Integración Universal**: Lee código de GitHub, GitLab, Monaco Editor, Ace Editor y más.
-*   **⚡ Acciones Rápidas**: Refactorización, Explicación, Fix de Bugs y Generación de Tests con un clic.
-*   **🗣️ Voz a Código**: Dictado por voz integrado para prompts rápidos.
-*   **💾 Historial Persistente**: Tus conversaciones se guardan localmente y de forma segura.
-*   **🎨 UI "World Class"**: Interfaz oscura, limpia, responsiva y accesible.
+*   **🧠 Advanced AI**: Powered by Google Gemini 2.5 Flash (Speed) and 3.0 Pro (Reasoning).
+*   **👀 Visual Context**: Capable of taking screenshots and analyzing UI elements.
+*   **🔌 Universal Integration**: Reads code from DOM elements in GitHub, GitLab, Monaco Editor, Ace Editor, and more.
+*   **⚡ Quick Actions**: Refactor, Explain, Fix Bugs, and Generate Tests with a single click.
+*   **🗣️ Voice-to-Code**: Integrated voice dictation for hands-free prompting.
+*   **🔒 Privacy First**: "Bring Your Own Key" architecture. Your API key and code snippets are stored locally.
 
 ---
 
-## 🚀 Instalación (Modo Desarrollador)
+## 🔒 Privacy & Security
 
-Sigue estos pasos para probar la extensión en tu navegador local (Chrome/Edge/Brave).
+We believe in privacy by design.
 
-### 1. Prerrequisitos
-*   Node.js (v18 o superior)
-*   NPM o Yarn
-
-### 2. Construcción
-Ejecuta el siguiente comando. Esto correrá los tests unitarios y, si pasan, compilará la extensión en la carpeta `dist/`.
-
-```bash
-npm run build
-```
-
-> **Nota:** Si los tests fallan, la construcción se detendrá para asegurar la calidad del código.
-
-### 3. Cargar en el Navegador
-1.  Abre Google Chrome y ve a `chrome://extensions/`.
-2.  Activa el **"Modo de desarrollador"** (Developer mode) en la esquina superior derecha.
-3.  Haz clic en el botón **"Cargar descomprimida"** (Load unpacked).
-4.  Selecciona la carpeta `dist/` que se generó en tu proyecto.
-
-¡Listo! Verás el icono de Gemini Code Sidecar en tu barra de herramientas.
+1.  **Bring Your Own Key (BYOK):** You use your own Google Gemini API Key.
+2.  **Local Storage:** Your chat history and API key are stored in your browser's local storage (`chrome.storage.local` / `sync`).
+3.  **Direct Connection:** The extension communicates directly with Google's servers. **No intermediate servers** collect your data or code.
+4.  **Open Source:** You can audit this code to verify these claims.
 
 ---
 
-## 🛠️ Desarrollo
+## 🚀 Installation
 
-### Estructura del Proyecto
-*   `src/`: Código fuente React/TypeScript.
-*   `content.js`: Script inyectado para leer el DOM de la página web.
-*   `manifest.json`: Configuración de la extensión (Manifest V3).
+### From Chrome Web Store
+*(Link coming soon)*
 
-### Comandos Útiles
+### Manual Installation (Developer Mode)
 
-| Comando | Descripción |
-| :--- | :--- |
-| `npm run dev` | Inicia el servidor de desarrollo (útil para UI sin API de Chrome). |
-| `npm run test` | Ejecuta la suite de pruebas con Vitest. |
-| `npm run build` | **Test + Compilación + Copia de Assets**. |
-
----
-
-## 🔑 Configuración de API Key
-
-1.  Abre la extensión haciendo clic en el icono o abriendo el Panel Lateral.
-2.  Ve al icono de **Configuración (⚙️)**.
-3.  Ingresa tu API Key de Google Gemini. Puedes obtener una gratis en [Google AI Studio](https://aistudio.google.com/).
-4.  (Opcional) Define una "Instrucción del Sistema" para personalizar la personalidad de la IA.
+1.  Clone this repository.
+2.  Install dependencies and build:
+    ```bash
+    npm install
+    npm run build
+    ```
+3.  Open Chrome and navigate to `chrome://extensions/`.
+4.  Enable **"Developer mode"** (top right).
+5.  Click **"Load unpacked"**.
+6.  Select the `dist/` folder generated in this project.
 
 ---
 
-## 🧪 Tests
+## 🛠️ Usage
 
-El proyecto utiliza **Vitest** y **React Testing Library**.
-
-```bash
-npm run test
-```
-
-Los tests cubren:
-*   Componentes UI (Botones, Modales).
-*   Hooks personalizados (Reconocimiento de voz, Hotkeys).
-*   Servicios lógicos (Cálculo de tokens, Gestión de templates).
+1.  **Setup**: Click the extension icon to open the Side Panel. Click the **Settings (⚙️)** icon and paste your Google Gemini API Key.
+2.  **Chat**: Ask anything about programming.
+3.  **Context**: Click "Context" (or `Ctrl+J`) to see what code the AI is analyzing.
+4.  **Quick Actions**: Use the buttons at the bottom (Explain, Refactor, Fix) to process code visible on your current tab.
 
 ---
 
-## 📄 Licencia
+## 💻 Tech Stack
 
-Este proyecto está bajo la licencia MIT.
+*   **Framework**: React 19
+*   **Build Tool**: Vite
+*   **Language**: TypeScript
+*   **AI SDK**: Google GenAI SDK (`@google/genai`)
+*   **Testing**: Vitest + React Testing Library
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

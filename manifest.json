@@ -1,16 +1,19 @@
-
 {
   "manifest_version": 3,
-  "name": "Gemini AI",
-  "version": "2.2",
-  "description": "Asistente de IA integrado.",
+  "name": "Gemini Code Sidecar",
+  "version": "1.0.0",
+  "description": "Your AI coding copilot. Refactor, explain, and fix code directly in your browser using Google Gemini.",
   "permissions": ["sidePanel", "activeTab", "scripting", "storage"],
   "host_permissions": ["<all_urls>"],
   "side_panel": {
     "default_path": "index.html"
   },
   "action": {
-    "default_title": "Abrir Gemini AI"
+    "default_title": "Open Gemini Code Sidecar",
+    "default_icon": {
+      "16": "icon-16.png",
+      "48": "icon-48.png"
+    }
   },
   "content_scripts": [
     {
@@ -21,11 +24,11 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://generativelanguage.googleapis.com https://esm.sh *"
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://generativelanguage.googleapis.com https://esm.sh *"
   },
   "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
   }
 }

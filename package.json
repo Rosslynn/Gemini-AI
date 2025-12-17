@@ -1,14 +1,13 @@
-
 {
   "name": "gemini-code-sidecar",
   "version": "1.0.0",
-  "description": "Tu copiloto de programación seguro.",
+  "description": "Your AI coding copilot.",
   "scripts": {
     "dev": "vite",
     "test": "vitest run",
     "test:watch": "vitest",
     "build": "npm run test && tsc && vite build && npm run copy-assets",
-    "copy-assets": "cp manifest.json styles.css content.js importmap.json icon.png dist/",
+    "copy-assets": "cp manifest.json styles.css content.js importmap.json icon*.png LICENSE.html dist/",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
