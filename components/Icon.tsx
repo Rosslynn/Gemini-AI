@@ -33,7 +33,8 @@ import {
   HelpCircle,
   Command,
   MoreVertical,
-  Palette
+  Palette,
+  Camera
 } from 'lucide-react';
 
 export const Icons = {
@@ -69,5 +70,6 @@ export const Icons = {
   Help: HelpCircle,
   Command,
   More: MoreVertical,
-  Palette
+  Palette,
+  Camera
 };

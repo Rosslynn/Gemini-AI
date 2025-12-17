@@ -17,13 +17,12 @@ interface ChatInputProps {
   hasAttachments: boolean;
   onToggleMic?: () => void;
   isListening?: boolean;
-  onImageGen?: () => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
   value, onChange, onSend, onStop, isLoading, 
   onScreenshot, onAttach, useSearch, onToggleSearch, onOpenTemplates, hasAttachments,
-  onToggleMic, isListening, onImageGen
+  onToggleMic, isListening
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
@@ -52,7 +51,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     <div className={`input-container ${isLoading ? 'loading' : ''} ${isListening ? 'listening-mode' : ''}`}>
         <div className="input-tools" role="toolbar" aria-label={t('aria.input_tools')}>
             <button className="tool-btn" onClick={onScreenshot} disabled={isLoading} title={t('input.tool.screenshot')} type="button" aria-label={t('input.tool.screenshot')}>
-                <Icons.Image size={18} aria-hidden="true"/>
+                <Icons.Camera size={18} aria-hidden="true"/>
             </button>
             <button className="tool-btn" onClick={onAttach} disabled={isLoading} title={t('input.tool.attach')} type="button" aria-label={t('input.tool.attach')}>
                 <Icons.Paperclip size={18} aria-hidden="true"/>
@@ -69,20 +68,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 <Icons.Globe size={18} aria-hidden="true"/>
             </button>
             
-            {/* Botón de Generar Imagen */}
-            {onImageGen && (
-                <button 
-                    className="tool-btn" 
-                    onClick={onImageGen} 
-                    disabled={isLoading} 
-                    title={t('input.tool.image')}
-                    type="button"
-                    aria-label={t('input.tool.image')}
-                >
-                    <Icons.Palette size={18} aria-hidden="true"/>
-                </button>
-            )}
-
             <button 
                 className="tool-btn" 
                 onClick={onOpenTemplates} 

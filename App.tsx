@@ -443,10 +443,6 @@ export default function App() {
       } finally { setIsLoading(false); abortControllerRef.current = null; }
   };
 
-  const handleImageGen = () => {
-      setInputValue(t('prompts.image_gen_prefix'));
-  };
-
   const handleTemplateSelect = (content: string) => {
       setInputValue(content);
       setShowTemplates(false);
@@ -600,7 +596,6 @@ export default function App() {
                     hasAttachments={attachments.length > 0}
                     onToggleMic={toggleMic}
                     isListening={isListening}
-                    onImageGen={handleImageGen}
                  />
                  <input type="file" ref={fileInputRef} onChange={(e) => e.target.files?.length && processFiles(Array.from(e.target.files))} style={{display: 'none'}} multiple/>
               </footer>
