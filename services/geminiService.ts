@@ -86,8 +86,15 @@ export const streamGeminiResponse = async (
         if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
         const c = chunk as GenerateContentResponse;
         
-        // Extract text
-        const text = c.text || "";
+        // Extract text safely without triggering SDK warnings if images are present
+        let text = "";
+        if (c.candidates?.[0]?.content?.parts) {
+            for (const part of c.candidates[0].content.parts) {
+                if (part.text) {
+                    text += part.text;
+                }
+            }
+        }
 
         // Extract images (inlineData)
         const newImages: Attachment[] = [];

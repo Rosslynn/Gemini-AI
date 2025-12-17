@@ -1,3 +1,4 @@
+
 {
   "name": "gemini-code-sidecar",
   "version": "1.0.0",
@@ -7,7 +8,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "build": "npm run test && tsc && vite build && npm run copy-assets",
-    "copy-assets": "cp manifest.json styles.css content.js importmap.json icon*.png LICENSE.html dist/",
+    "copy-assets": "cp manifest.json styles.css content.js background.js importmap.json icon*.png dist/",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {

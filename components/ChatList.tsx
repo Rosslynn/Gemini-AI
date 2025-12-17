@@ -5,11 +5,12 @@ import { Message } from '../types';
 
 interface ChatListProps {
     messages: Message[];
+    onImageClick?: (url: string) => void;
 }
 
 // React.memo asegura que este componente SOLO se re-renderice si 'messages' cambia.
 // No se re-renderizará si el padre (App) cambia el estado 'inputValue'.
-export const ChatList = React.memo(({ messages }: ChatListProps) => {
+export const ChatList = React.memo(({ messages, onImageClick }: ChatListProps) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const chatAreaRef = useRef<HTMLDivElement>(null);
     const shouldAutoScrollRef = useRef(true);
@@ -32,7 +33,7 @@ export const ChatList = React.memo(({ messages }: ChatListProps) => {
 
     return (
         <div className="chat-area" ref={chatAreaRef} role="log" aria-live="polite">
-            {messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
+            {messages.map(msg => <ChatMessage key={msg.id} message={msg} onImageClick={onImageClick} />)}
             <div ref={messagesEndRef} style={{ height: '1px' }} />
         </div>
     );

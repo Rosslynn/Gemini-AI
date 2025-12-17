@@ -11,9 +11,10 @@ import { useTranslation } from '../hooks/useTranslation';
 
 interface ChatMessageProps {
   message: Message;
+  onImageClick?: (url: string) => void;
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = React.memo(({ message }) => {
+export const ChatMessage: React.FC<ChatMessageProps> = React.memo(({ message, onImageClick }) => {
   const isUser = message.role === Role.USER;
   const isSystem = message.role === Role.SYSTEM;
   const { showToast } = useToast();
@@ -36,7 +37,12 @@ export const ChatMessage: React.FC<ChatMessageProps> = React.memo(({ message }) 
                   <div key={att.id} className="attachment-display">
                       {att.mimeType.startsWith('image/') ? (
                           <div className="att-image-container">
-                             <img src={att.previewUrl} alt={`${t('alt.thumbnail')}: ${att.name}`} className="att-image-full" />
+                             <img 
+                                src={att.previewUrl} 
+                                alt={`${t('alt.thumbnail')}: ${att.name}`} 
+                                className="att-image-full clickable-image" 
+                                onClick={() => onImageClick && onImageClick(att.previewUrl)}
+                             />
                           </div>
                       ) : (
                           <div className="att-file-card">

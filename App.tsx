@@ -42,6 +42,9 @@ export default function App() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   
+  // Image Preview State (Lightbox)
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const [contextCode, setContextCode] = useState<string>('');
   const [isContextVisible, setIsContextVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
@@ -112,10 +115,17 @@ export default function App() {
       init();
   }, []);
 
+  // --- SAVE HISTORY (DEBOUNCED) ---
   useEffect(() => {
       if (isInitialized && messages.length > 0 && apiKey) {
-          const messagesToSave = messages.filter(m => !m.isThinking);
-          saveChatHistory(messagesToSave);
+          // Debounce: Esperamos 2 segundos sin actividad antes de guardar.
+          // Esto evita errores de cuota de escritura y mejora performance durante el streaming.
+          const timerId = setTimeout(() => {
+              const messagesToSave = messages.filter(m => !m.isThinking);
+              saveChatHistory(messagesToSave);
+          }, 2000);
+
+          return () => clearTimeout(timerId);
       }
   }, [messages, isInitialized, apiKey]);
 
@@ -205,7 +215,8 @@ export default function App() {
       { 
           combo: 'esc', 
           onTrigger: () => {
-              if (showSettings && apiKey) setShowSettings(false);
+              if (previewImage) setPreviewImage(null);
+              else if (showSettings && apiKey) setShowSettings(false);
               else if (showTemplates) setShowTemplates(false);
               else if (showShortcuts) setShowShortcuts(false);
               else if (isLoading) handleStop();
@@ -229,7 +240,7 @@ export default function App() {
           combo: '?',
           onTrigger: () => setShowShortcuts(true)
       }
-  ], [showSettings, showTemplates, showShortcuts, isLoading, apiKey]);
+  ], [showSettings, showTemplates, showShortcuts, isLoading, apiKey, previewImage]);
 
   // --- GEMINI EXECUTION ---
   const handleSendMessage = async (overridePrompt?: string, label?: string) => {
@@ -277,9 +288,20 @@ export default function App() {
     
     abortControllerRef.current = new AbortController();
 
+    // ERROR FIX: "Image part is missing a thought_signature"
+    // Cuando el MODELO genera una imagen y la enviamos de vuelta en el historial como 'inlineData' simple,
+    // la API rechaza la solicitud porque falta la firma de seguridad interna.
+    // SOLUCIÓN: Filtramos las imágenes generadas por el modelo del historial que enviamos a la API.
+    // El modelo recordará el contexto por el texto (prompts anteriores), pero no necesita los bytes de la imagen generada.
     const apiHistory = newHistory.filter(m => m.role !== Role.SYSTEM).map(m => {
         const parts: any[] = [];
-        if (m.attachments) m.attachments.forEach(att => parts.push({ inlineData: { mimeType: att.mimeType, data: att.data }}));
+        
+        // Solo adjuntar imágenes si son del USUARIO.
+        // Si son del MODELO, las omitimos para evitar el error 400.
+        if (m.role === Role.USER && m.attachments) {
+            m.attachments.forEach(att => parts.push({ inlineData: { mimeType: att.mimeType, data: att.data }}));
+        }
+        
         if (m.content) parts.push({ text: m.content });
         return { role: m.role === Role.USER ? 'user' : 'model', parts };
     });
@@ -307,12 +329,8 @@ export default function App() {
                 
                 setMessages(prev => prev.map(m => {
                     if (m.id === tempId) {
-                        // Merge new images if any
                         const currentAttachments = m.attachments || [];
                         const newAttachments = generatedImages || [];
-                        // Simple merge preventing basic duplicates by ID if needed, 
-                        // but usually stream sends distinct parts. 
-                        // We assume generatedImages contains only *new* images from this chunk.
                         const merged = [...currentAttachments, ...newAttachments];
 
                         return { 
@@ -332,7 +350,7 @@ export default function App() {
     } catch (e: any) {
         if (e.name !== 'AbortError') {
             setMessages(prev => [...prev, { id: Date.now().toString(), role: Role.SYSTEM, content: "❌ Error: " + e.message }]);
-            showToast(t('status.offline'), "error"); // Generic connection error fallback
+            showToast(t('status.offline'), "error");
         }
     } finally {
         setIsLoading(false);
@@ -391,7 +409,6 @@ export default function App() {
       setIsLoading(true);
       abortControllerRef.current = new AbortController();
       
-      // Diccionario de prompts reales para la IA (Traducidos)
       const prompts: Record<QuickActionType, string> = { 
           explain: t('prompts.explain'), 
           refactor: t('prompts.refactor'), 
@@ -399,7 +416,6 @@ export default function App() {
           tests: t('prompts.tests') 
       };
 
-      // Etiquetas visibles para el chat (Lo que el usuario ve que "escribió")
       const labels: Record<QuickActionType, string> = { 
           explain: t('action.explain'), 
           refactor: t('action.refactor'), 
@@ -407,7 +423,6 @@ export default function App() {
           tests: t('action.tests') 
       };
 
-      // Mostrar el label corto en el chat
       setMessages(p => [...p, { id: Date.now().toString(), role: Role.USER, content: labels[action] }]);
       
       const tempId = (Date.now() + 1).toString();
@@ -415,7 +430,6 @@ export default function App() {
 
       try {
           let acc = "";
-          // Pasar el PROMPT real a la función de servicio
           await generateQuickAction(apiKey, code, prompts[action], (chunk) => {
               acc += chunk;
               setMessages(p => p.map(m => m.id === tempId ? { ...m, content: acc, isThinking: true } : m));
@@ -431,7 +445,6 @@ export default function App() {
 
   const handleImageGen = () => {
       setInputValue(t('prompts.image_gen_prefix'));
-      // Enfocar input se maneja en el componente, pero al cambiar el state, el usuario solo tiene que escribir.
   };
 
   const handleTemplateSelect = (content: string) => {
@@ -477,8 +490,6 @@ export default function App() {
     </Suspense>
   );
 
-  // --- RENDERIZADO CONDICIONAL ---
-
   if (!isInitialized) {
       return (
           <div className="app-container splash-screen">
@@ -495,6 +506,16 @@ export default function App() {
     <div className={`app-container ${isDragging ? 'dragging-over' : ''}`} onDragOver={(e)=>{e.preventDefault(); setIsDragging(true)}} onDragLeave={(e)=>{e.preventDefault(); setIsDragging(false)}} onDrop={handleDrop}>
       {!isOnline && <NetworkBanner />}
       {renderModals()}
+      
+      {/* Lightbox / Preview Overlay */}
+      {previewImage && (
+          <div className="lightbox-overlay" onClick={() => setPreviewImage(null)}>
+              <button className="lightbox-close" onClick={() => setPreviewImage(null)} aria-label={t('btn.close')}>
+                  <Icons.X size={24} />
+              </button>
+              <img src={previewImage} className="lightbox-image" alt="Full size preview" onClick={(e) => e.stopPropagation()} />
+          </div>
+      )}
       
       {!apiKey ? (
           <div className="welcome-bg">
@@ -535,7 +556,7 @@ export default function App() {
                       </section>
                   )}
                   
-                  <ChatList messages={messages} />
+                  <ChatList messages={messages} onImageClick={(url) => setPreviewImage(url)} />
               </main>
 
               <footer className="footer">
@@ -556,7 +577,14 @@ export default function App() {
                          <button className="att-remove" onClick={() => setAttachments([])} type="button" aria-label={t('aria.clear_attachments')}><Icons.Trash size={14} color="#ef4444" /></button>
                          {attachments.map(att => (
                              <div key={att.id} className="attachment-chip">
-                                 {att.mimeType.startsWith('image/') ? <img src={att.previewUrl} className="att-thumb" alt={t('tokens.optimize.tooltip')} /> : <Icons.FileText size={14} aria-hidden="true"/>}
+                                 {att.mimeType.startsWith('image/') ? (
+                                    <img 
+                                        src={att.previewUrl} 
+                                        className="att-thumb clickable" 
+                                        alt={att.name} 
+                                        onClick={() => setPreviewImage(att.previewUrl)}
+                                    />
+                                 ) : <Icons.FileText size={14} aria-hidden="true"/>}
                                  <span className="att-name">{att.name}</span>
                                  <button className="att-remove" onClick={() => setAttachments(p => p.filter(a => a.id !== att.id))} type="button" aria-label={`${t('aria.remove_file')} ${att.name}`}><Icons.X size={12} /></button>
                              </div>
