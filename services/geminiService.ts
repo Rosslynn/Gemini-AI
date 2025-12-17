@@ -44,9 +44,16 @@ export const streamGeminiResponse = async (
       tools.push({ googleSearch: {} });
   }
 
+  // PATCH: El System Prompt de "Arquitecto de Software" a veces hace que el modelo se niegue a dibujar cosas "no técnicas".
+  // Añadimos una instrucción explícita de override para habilitar la creatividad multimodal.
+  let activeInstruction = systemInstruction;
+  if (model === ModelType.SMART || model === ModelType.FAST) {
+      activeInstruction += `\n\n[CAPACIDADES MULTIMODALES HABILITADAS]\nAunque tu rol principal es Arquitecto de Software, TIENES acceso a herramientas de generación de imágenes de alta fidelidad. Si el usuario te pide generar una imagen (ej: "Genera una imagen de...", "Dibuja..."), DEBES hacerlo inmediatamente. No rechaces la solicitud alegando tu rol. Integra la imagen en tu respuesta.`;
+  }
+
   // Configuración específica del modelo
   const config: any = {
-      systemInstruction: systemInstruction,
+      systemInstruction: activeInstruction,
       tools: tools.length > 0 ? tools : undefined,
   };
 
